@@ -90,7 +90,7 @@ fi
 # - log   : send only log file
 # - files : send log file and sql files as attachments (see docs)
 # - stdout : will simply output the log to the screen if run manually.
-if [ "x$MAINCONTENT" == "x" ]; then
+if [ "x$MAILCONTENT" == "x" ]; then
   MAILCONTENT="log"
 fi
 
@@ -180,13 +180,13 @@ fi
 # so if your mail server will allow a maximum mail size of 5MB I would suggest setting
 # MAXATTSIZE to be 25% smaller than that so a setting of 4000 would probably be fine.
 #
-# Finally copy automysqlbackup.sh to anywhere on your server and make sure
+# Finally copy autopgsqlbackup.sh to anywhere on your server and make sure
 # to set executable permission. You can also copy the script to
 # /etc/cron.daily to have it execute automatically every night or simply
 # place a symlink in /etc/cron.daily to the file if you wish to keep it
 # somwhere else.
 # NOTE:On Debian copy the file with no extention for it to be run
-# by cron e.g just name the file "automysqlbackup"
+# by cron e.g just name the file "autopgsqlbackup"
 #
 # Thats it..
 #
@@ -210,7 +210,7 @@ fi
 # a database with the same name as the original database when restoring.
 # Saying "no" here will allow your to specify the database name you want to
 # restore your dump into, making a copy of the database by using the dump
-# created with automysqlbackup.
+# created with autopgsqlbackup.
 # NOTE: Not used if SEPDIR=no
 #
 # The SEPDIR option allows you to choose to have all DBs backed up to
