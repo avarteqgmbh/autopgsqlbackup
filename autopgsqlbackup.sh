@@ -75,6 +75,11 @@ if [ "x$DBHOST" == "x" ]; then
   DBHOST=localhost
 fi
 
+# Configure trust based authentication
+if [ "x$USE_TRUST_AUTH" == "x" ]; then
+  USE_TRUST_AUTH="no"
+fi
+
 # List of DBNAMES for Daily/Weekly Backup e.g. "DB1 DB2 DB3"
 if [ "x$DBNAMES" == "x" ]; then
   DBNAMES="all"
@@ -314,9 +319,13 @@ exec > $LOGFILE     # stdout replaced with file $LOGFILE.
 
 # Database dump function
 dbdump () {
-pg_dump --username=$USERNAME $HOST $OPT $1 > $2
+if [ "x$USE_TRUST_AUTH" == "xyes" ]; then
+  /bin/su $USERNAME -c "/usr/bin/pg_dump $OPT $1 > $2"
+else
+  /usr/bin/pg_dump --username=$USERNAME $HOST $OPT $1 > $2
+fi
 return 0
-}
+
 
 # Compression function
 SUFFIX=""
@@ -371,7 +380,11 @@ fi
 
 # If backing up all DBs on the server
 if [ "$DBNAMES" = "all" ]; then
-  DBNAMES="`psql -U $USERNAME $HOST -l -A -F: | sed -ne "/:/ { /Name:Owner/d; /template0/d; s/:.*$//; p }"`"
+  if [ "x$USE_TRUST_AUTH" == "xyes" ]; then
+    DBNAMES="`/bin/su $USERNAME -c '/usr/bin/psql -l -A -F:' | sed -ne "/:/ { /Name:Owner/d; /template0/d; s/:.*$//; p }"`"
+  else
+    DBNAMES="`/usr/bin/psql -U $USERNAME $HOST -l -A -F: | sed -ne "/:/ { /Name:Owner/d; /template0/d; s/:.*$//; p }"`"
+  fi
 
   # If DBs are excluded
   for exclude in $DBEXCLUDE
